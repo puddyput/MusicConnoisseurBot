@@ -13,7 +13,8 @@ type CommandControl struct {
 
 // COMMANDS
 func (c CommandControl) Music(m *tb.Message) {
-	fmt.Printf("/music")
+	// parse message
+
 }
 
 func (c CommandControl) List(m *tb.Message) {
