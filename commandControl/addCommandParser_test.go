@@ -26,6 +26,10 @@ func TestAddCommandParser_GetURL(t *testing.T) {
 	p = AddCommandParser{input}
 	assert.Equal(t, p.GetURL(), expected)
 
+	input = "https://www.youtube.com/watch?v=hPGeSVgvgzQ something"
+	p = AddCommandParser{input}
+	assert.Equal(t, p.GetURL(), expected)
+
 	input = "nothing"
 	p = AddCommandParser{input}
 	assert.Equal(t, p.GetURL(), "")
