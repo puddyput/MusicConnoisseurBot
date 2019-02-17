@@ -29,7 +29,7 @@ func main() {
 
 	// Verify all Top-Level-Buckets exist
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("Music"))
+		_, err := tx.CreateBucketIfNotExists([]byte("Tracks"))
 		if err != nil {
 			return fmt.Errorf("create bucket: %s", err)
 		}
