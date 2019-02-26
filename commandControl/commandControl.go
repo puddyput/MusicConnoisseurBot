@@ -6,6 +6,8 @@ import (
 	"github.com/boltdb/bolt"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"log"
+	"regexp"
+	"strings"
 )
 
 type CommandControl struct {
@@ -19,8 +21,10 @@ func (cc CommandControl) Music(m *tb.Message) {
 	p := AddCommandParser{m.Text}
 	track := musicData.Track{
 		URL:         p.GetURL(),
+		Title:       p.getTitle(),
 		Description: p.GetComment(),
 		Hashtags:    p.GetHashtags(),
+		MessageId:   m.ID,
 	}
 	// is valid?
 	if !track.IsValid() {
@@ -28,44 +32,39 @@ func (cc CommandControl) Music(m *tb.Message) {
 		return
 	}
 
-	encoded, err := track.Serialize()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
 	// save to database
-	err = cc.DB.Update(func(tx *bolt.Tx) error {
-		key := []byte(track.URL)
-		tx.Bucket([]byte("Tracks")).Put(key, encoded)
-		return nil
-	})
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+	cc.MDB.PutTrack(track.URL, track)
 }
 
 func (cc CommandControl) List(m *tb.Message) {
-	err := cc.DB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Tracks"))
-		c := b.Cursor()
+	re := regexp.MustCompile("/list\\s(.*)")
+	matches := re.FindStringSubmatch(m.Text)
+	search := ""
+	if len(matches) > 1 {
+		search = matches[1]
+	}
+	tracks := cc.MDB.Find(search)
+	reply := "Tracks matching your criteria:\n"
+	for _, t := range tracks {
+		reply += t.AsOneLine() + "\n"
+	}
 
-		response := "Everything that matches your criteria:\n"
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var t musicData.Track
-			err := json.Unmarshal(v, &t)
-			if err != nil {
-				log.Print(err)
-			}
-			response += t.AsOneLine() + "\n"
+	_, err := cc.Bot.Send(m.Chat, reply, tb.NoPreview)
+	if nil != err {
+		log.Print("could not send response to LIST command")
+	}
+}
+
+func (cc CommandControl) HandleReply(m *tb.Message) {
+	originalMessage := m.ReplyTo
+	// check if original message is a music post
+	t := cc.MDB.FindByMessageId(originalMessage.ID)
+	if &t != nil {
+		// is reply to a track
+		if strings.Contains(m.Text, "👍") {
+			// update vote count
+			t.Votes++
+			cc.MDB.PutTrack(t.URL, t)
 		}
-
-		cc.Bot.Send(m.Chat, response)
-		return nil
-	})
-	if err != nil {
-		log.Fatal(err)
-		return
 	}
 }
