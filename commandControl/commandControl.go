@@ -15,8 +15,10 @@ type CommandControl struct {
 
 // COMMANDS
 func (cc CommandControl) Music(m *tb.Message) {
+
 	// parse message
 	p := AddCommandParser{m.Text}
+
 	track := musicData.Track{
 		URL:         p.GetURL(),
 		Title:       p.getTitle(),

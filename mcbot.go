@@ -41,6 +41,13 @@ func main() {
 	b.Handle("/list", func(m *tb.Message) {
 		cc.List(m)
 	})
+
+	// handle replies (votes)
+	b.Handle(tb.OnChannelPost, func(m *tb.Message) {
+		if m.IsReply() {
+			cc.HandleReply(m)
+		}
+	})
 	fmt.Println("Init done - waiting for messages")
 	defer cc.MDB.Close()
 	b.Start()
