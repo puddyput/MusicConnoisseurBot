@@ -14,6 +14,8 @@ type CommandControl struct {
 }
 
 // COMMANDS
+
+// Music
 func (cc CommandControl) Music(m *tb.Message) {
 
 	// parse message
@@ -36,6 +38,7 @@ func (cc CommandControl) Music(m *tb.Message) {
 	cc.MDB.PutTrack(track.URL, track)
 }
 
+// List
 func (cc CommandControl) List(m *tb.Message) {
 	re := regexp.MustCompile("/list\\s(.*)")
 	matches := re.FindStringSubmatch(m.Text)
@@ -55,6 +58,7 @@ func (cc CommandControl) List(m *tb.Message) {
 	}
 }
 
+// replies
 func (cc CommandControl) HandleReply(m *tb.Message) {
 	originalMessage := m.ReplyTo
 	// check if original message is a music post

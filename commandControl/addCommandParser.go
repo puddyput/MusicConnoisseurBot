@@ -32,9 +32,12 @@ func (p AddCommandParser) GetComment() string {
 
 func (p AddCommandParser) getTitle() string {
 	// remove command
-	re := regexp.MustCompile("/music\\b")
+	re := regexp.MustCompile("(?s)/music\\b")
 	m := re.ReplaceAllString(p.Message, "")
 
 	lines := strings.Split(m, "\n")
-	return lines[0]
+	if len(lines[0]) >= 0 {
+		return lines[0] // same line as \music
+	}
+	return lines[1] // next line
 }
