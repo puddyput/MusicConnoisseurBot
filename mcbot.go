@@ -43,7 +43,8 @@ func main() {
 	})
 
 	// handle replies (votes)
-	b.Handle(tb.OnChannelPost, func(m *tb.Message) {
+	b.Handle(tb.OnText, func(m *tb.Message) {
+		fmt.Println("message")
 		if m.IsReply() {
 			cc.HandleReply(m)
 		}
