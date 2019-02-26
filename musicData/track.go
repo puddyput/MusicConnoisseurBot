@@ -11,6 +11,8 @@ type Track struct {
 	Hashtags    []string
 	Description string
 	Rating      int
+	MessageId   int
+	Votes       int
 }
 
 func (t Track) Serialize() (encoded []byte, err error) {
@@ -18,7 +20,7 @@ func (t Track) Serialize() (encoded []byte, err error) {
 }
 
 func (t Track) AsOneLine() string {
-	return fmt.Sprintf("%s (%d): \t%s", t.Title, t.Rating, t.URL)
+	return fmt.Sprintf("%s (%d 👍): \t%s", t.Title, t.Rating, t.URL)
 }
 
 func (t Track) IsValid() bool {
