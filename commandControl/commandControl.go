@@ -2,8 +2,6 @@ package commandControl
 
 import (
 	"../musicData"
-	"encoding/json"
-	"github.com/boltdb/bolt"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"log"
 	"regexp"
@@ -12,7 +10,7 @@ import (
 
 type CommandControl struct {
 	Bot *tb.Bot
-	DB  *bolt.DB
+	MDB *musicData.Database
 }
 
 // COMMANDS
