@@ -3,6 +3,7 @@ package commandControl
 import (
 	"mvdan.cc/xurls"
 	"regexp"
+	"strings"
 )
 
 type AddCommandParser struct {
@@ -22,5 +23,18 @@ func (p AddCommandParser) GetURL() string {
 }
 
 func (p AddCommandParser) GetComment() string {
-	return p.Message
+	// remove command
+	re := regexp.MustCompile("/music\\b")
+	m := re.ReplaceAllString(p.Message, "")
+
+	return m
+}
+
+func (p AddCommandParser) getTitle() string {
+	// remove command
+	re := regexp.MustCompile("/music\\b")
+	m := re.ReplaceAllString(p.Message, "")
+
+	lines := strings.Split(m, "\n")
+	return lines[0]
 }
