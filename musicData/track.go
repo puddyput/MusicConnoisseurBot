@@ -10,7 +10,6 @@ type Track struct {
 	URL         string
 	Hashtags    []string
 	Description string
-	Rating      int
 	MessageId   int
 	Votes       int
 }
@@ -19,8 +18,8 @@ func (t Track) Serialize() (encoded []byte, err error) {
 	return json.Marshal(t)
 }
 
-func (t Track) AsOneLine() string {
-	return fmt.Sprintf("%s (%d 👍): \t%s", t.Title, t.Rating, t.URL)
+func (t Track) ShortDescription() string {
+	return fmt.Sprintf("%s (%d 👍 /like_%d):\n%s\n", t.Title, t.Votes, t.MessageId, t.URL)
 }
 
 func (t Track) IsValid() bool {
