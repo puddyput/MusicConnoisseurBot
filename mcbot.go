@@ -34,21 +34,10 @@ func main() {
 
 	// REGISTER COMMANDS
 	cc := commandControl.CommandControl{Bot: b, MDB: mdb}
+	b.Handle("/music", cc.Music)
+	b.Handle("/list", cc.List)
+	b.Handle(tb.OnText, cc.HandleVote)
 
-	b.Handle("/music", func(m *tb.Message) {
-		cc.Music(m)
-	})
-	b.Handle("/list", func(m *tb.Message) {
-		cc.List(m)
-	})
-
-	// handle replies (votes)
-	b.Handle(tb.OnText, func(m *tb.Message) {
-		fmt.Println("message")
-		if m.IsReply() {
-			cc.HandleReply(m)
-		}
-	})
 	fmt.Println("Init done - waiting for messages")
 	defer cc.MDB.Close()
 	b.Start()

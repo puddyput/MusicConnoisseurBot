@@ -2,9 +2,11 @@ package commandControl
 
 import (
 	"../musicData"
+	"fmt"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -32,10 +34,13 @@ func (cc CommandControl) Music(m *tb.Message) {
 	if !track.IsValid() {
 		cc.Bot.Send(m.Chat, "Brudi die URL fehlt 🙄")
 		return
-	}
+	} else {
+		// save to database
+		cc.MDB.PutTrack(track.URL, track)
 
-	// save to database
-	cc.MDB.PutTrack(track.URL, track)
+		// post vote link
+		cc.Bot.Send(m.Chat, fmt.Sprintf("If you like it, send /like_%d", track.MessageId))
+	}
 }
 
 // List
@@ -49,7 +54,7 @@ func (cc CommandControl) List(m *tb.Message) {
 	tracks := cc.MDB.Find(search)
 	reply := "Tracks matching your criteria:\n"
 	for _, t := range tracks {
-		reply += t.AsOneLine() + "\n"
+		reply += t.ShortDescription() + "\n"
 	}
 
 	_, err := cc.Bot.Send(m.Chat, reply, tb.NoPreview)
@@ -58,14 +63,15 @@ func (cc CommandControl) List(m *tb.Message) {
 	}
 }
 
-// replies
-func (cc CommandControl) HandleReply(m *tb.Message) {
-	originalMessage := m.ReplyTo
-	// check if original message is a music post
-	t := cc.MDB.FindByMessageId(originalMessage.ID)
-	if &t != nil {
-		// is reply to a track
-		if strings.Contains(m.Text, "👍") {
+// votes
+func (cc CommandControl) HandleVote(m *tb.Message) {
+	if strings.HasPrefix(m.Text, "/like_") {
+		re := regexp.MustCompile("/like_(.*)@|$")
+		matches := re.FindStringSubmatch(m.Text)
+		id, _ := strconv.Atoi(matches[1])
+		// check if id is a music post
+		t := cc.MDB.FindByMessageId(id)
+		if &t != nil {
 			// update vote count
 			t.Votes++
 			cc.MDB.PutTrack(t.URL, t)
