@@ -36,7 +36,7 @@ func (p AddCommandParser) getTitle() string {
 	m := re.ReplaceAllString(p.Message, "")
 
 	lines := strings.Split(m, "\n")
-	if len(lines[0]) >= 0 {
+	if len(lines[0]) > 2 {
 		return lines[0] // same line as \music
 	}
 	return lines[1] // next line
